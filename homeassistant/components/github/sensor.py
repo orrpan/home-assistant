@@ -29,6 +29,8 @@ ATTR_LATEST_OPEN_PULL_REQUEST_URL = "latest_open_pull_request_url"
 ATTR_OPEN_PULL_REQUESTS = "open_pull_requests"
 ATTR_PATH = "path"
 ATTR_STARGAZERS = "stargazers"
+ATTR_LATEST_RELEASE = "latest_release"
+ATTR_LATEST_TAG = "latest_tag"
 
 DEFAULT_NAME = "GitHub"
 
@@ -84,6 +86,8 @@ class GitHubSensor(Entity):
         self._pull_request_count = None
         self._latest_open_pr_url = None
         self._stargazers = None
+        self._latest_release = None
+        self._latest_tag = None
         self._github_data = github_data
 
     @property
@@ -120,6 +124,8 @@ class GitHubSensor(Entity):
             ATTR_LATEST_OPEN_PULL_REQUEST_URL: self._latest_open_pr_url,
             ATTR_OPEN_PULL_REQUESTS: self._pull_request_count,
             ATTR_STARGAZERS: self._stargazers,
+            ATTR_LATEST_RELEASE: self._latest_release,
+            ATTR_LATEST_TAG: self._latest_tag,
         }
 
     @property
@@ -143,6 +149,8 @@ class GitHubSensor(Entity):
         self._pull_request_count = self._github_data.pull_request_count
         self._latest_open_pr_url = self._github_data.latest_open_pr_url
         self._stargazers = self._github_data.stargazers
+        self._latest_release = self._github_data.latest_release
+        self._latest_tag = self._github_data.latest_tag
 
 
 class GitHubData:
@@ -180,6 +188,8 @@ class GitHubData:
         self.pull_request_count = None
         self.latest_open_pr_url = None
         self.stargazers = None
+        self.latest_release = None
+        self.latest_tag = None
 
     def update(self):
         """Update GitHub Sensor."""
@@ -207,6 +217,11 @@ class GitHubData:
             releases = repo.get_releases()
             if releases and releases.totalCount > 0:
                 self.latest_release_url = releases[0].html_url
+                self.latest_release = releases[0].title
+
+            tags = repo.get_tags()
+            if tags and tags.totalCount > 0:
+                self.latest_tag = tags[0].name
 
             self.available = True
         except self._github.GithubException as err:
